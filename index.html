@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radar de Emendas — saiba onde o dinheiro caiu antes do edital existir</title>
+<meta name="description" content="Alerta de emendas parlamentares já PAGAS nos municípios que você atende, por área. Quem chega depois do edital publicado chega tarde. R$249/mês.">
+<meta property="og:title" content="Radar de Emendas">
+<meta property="og:description" content="Emenda paga no município é compra a caminho. Saiba antes do edital existir.">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#0d1117; --surface:#161b22; --surface-2:#1c2430; --line:#2a3441;
+    --ink:#e8edf3; --ink-dim:#9aa7b6; --ink-faint:#6b7889;
+    --accent:#4c8dff; --accent-ink:#0d1117; --ok:#3fb950; --warn:#d29922;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px}
+  a{color:var(--accent)}
+
+  header{border-bottom:1px solid var(--line);padding:18px 0}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:-.01em}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(63,185,80,.15)}
+
+  .hero{padding:72px 0 56px}
+  .kicker{font-size:12.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--ink-faint);font-weight:600;margin:0 0 18px}
+  h1{font-size:clamp(30px,5.2vw,46px);line-height:1.12;letter-spacing:-.025em;margin:0 0 20px;font-weight:700}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lede{font-size:19px;color:var(--ink-dim);max-width:63ch;margin:0 0 32px}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .btn{
+    display:inline-block;background:var(--accent);color:var(--accent-ink);font-weight:650;
+    padding:14px 24px;border-radius:8px;text-decoration:none;border:0;cursor:pointer;font-size:16px;
+  }
+  .btn:hover{filter:brightness(1.08)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:550}
+  .cta-note{font-size:13.5px;color:var(--ink-faint)}
+
+  section{padding:52px 0;border-top:1px solid var(--line)}
+  h2{font-size:23px;letter-spacing:-.015em;margin:0 0 8px;font-weight:670}
+  .sub{color:var(--ink-dim);margin:0 0 28px;max-width:66ch}
+
+  .pain{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+  .card h3{margin:0 0 7px;font-size:15.5px;font-weight:640}
+  .card p{margin:0;color:var(--ink-dim);font-size:14.5px}
+
+  /* ---- amostra real (prova) ---- */
+  .sample{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .sample-head{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;
+    padding:14px 18px;background:var(--surface-2);border-bottom:1px solid var(--line);
+    font-size:12.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.1em;font-weight:600;
+  }
+  .row{padding:18px;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:0}
+  .row-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+  .tag{
+    font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 8px;border-radius:4px;background:rgba(76,141,255,.14);color:#8fb8ff;
+  }
+  .tag.saude{background:rgba(63,185,80,.15);color:#7ee787}
+  .tag.educacao{background:rgba(210,153,34,.15);color:#e3b341}
+  .tag.obras{background:rgba(163,113,247,.16);color:#c297ff}
+  .row-name{font-weight:640;font-size:16px}
+  .row-meta{color:var(--ink-dim);font-size:14.5px;margin:0 0 8px}
+  .row-val{font-weight:700;color:var(--ok);font-variant-numeric:tabular-nums}
+  .row-why{color:var(--ink);font-size:14.5px;margin:0}
+  .row-why b{color:var(--accent)}
+  .empty{padding:26px 18px;color:var(--ink-dim);font-size:14.5px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+
+  ol.how{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:12px}
+  ol.how li{
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 18px 18px 56px;position:relative;
+    color:var(--ink-dim);font-size:14.5px;
+  }
+  ol.how li::before{
+    counter-increment:s;content:counter(s);
+    position:absolute;left:18px;top:17px;width:24px;height:24px;border-radius:6px;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+    font-size:13px;font-weight:700;display:grid;place-items:center;
+  }
+  ol.how b{color:var(--ink);font-weight:640}
+
+  .honest{display:grid;gap:12px}
+  .honest div{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:16px 18px;font-size:14.5px;color:var(--ink-dim)}
+  .honest b{color:var(--ink)}
+
+  .price{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:26px;text-align:center}
+  .price .amt{font-size:40px;font-weight:700;letter-spacing:-.03em}
+  .price .amt span{font-size:16px;color:var(--ink-dim);font-weight:500;letter-spacing:0}
+  .price ul{list-style:none;padding:0;margin:18px auto 0;max-width:440px;text-align:left;color:var(--ink-dim);font-size:14.5px}
+  .price li{padding:6px 0 6px 24px;position:relative}
+  .price li::before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:700}
+
+  /* ---- form ---- */
+  form{display:grid;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px}
+  label{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+  label .req{color:var(--accent)}
+  .hint{font-weight:400;color:var(--ink-faint);font-size:13px;display:block;margin-top:3px}
+  input[type=text],input[type=email],textarea{
+    width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    color:var(--ink);padding:12px 13px;font:inherit;font-size:15px;
+  }
+  input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+  textarea{min-height:96px;resize:vertical}
+  .areas{display:flex;flex-wrap:wrap;gap:10px}
+  .areas span{display:flex;gap:8px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px 13px;font-size:14.5px}
+  .areas input{width:17px;height:17px;accent-color:var(--accent);margin:0}
+  .check{display:flex;gap:11px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px}
+  .check input{margin:3px 0 0;width:17px;height:17px;accent-color:var(--accent);flex:none}
+  .check label{margin:0;font-weight:550;font-size:14.5px}
+  .legal{font-size:12.5px;color:var(--ink-faint);margin:0}
+  .notice{
+    background:rgba(210,153,34,.09);border:1px solid rgba(210,153,34,.35);color:#e3b341;
+    border-radius:10px;padding:18px;font-size:14.5px;
+  }
+  .thanks{background:rgba(63,185,80,.09);border:1px solid rgba(63,185,80,.35);color:#7ee787;border-radius:10px;padding:22px;font-size:15px}
+
+  footer{border-top:1px solid var(--line);padding:30px 0 46px;color:var(--ink-faint);font-size:13px}
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap brand"><span class="dot"></span> Radar de Emendas</div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <p class="kicker">Inteligência de emendas parlamentares · Vendas para prefeituras</p>
+    <h1>Quando o edital é publicado, <em>a decisão de compra já tem dono.</em></h1>
+    <p class="lede">
+      A emenda parlamentar é paga ao município meses antes de virar licitação. Nesse intervalo, a prefeitura
+      está decidindo o que comprar — e conversando com quem chegou primeiro. Quem descobre no edital
+      chega para disputar preço num escopo que outro ajudou a escrever.
+      O Radar te avisa quando a emenda <strong>é paga</strong> no município que você atende, na sua área.
+    </p>
+    <div class="cta-row">
+      <a class="btn" href="#pre-cadastro">Quero a amostra dos meus municípios</a>
+      <a class="btn btn-ghost" href="#amostra">Ver amostra real</a>
+    </div>
+    <p class="cta-note">Pré-cadastro · leva 40 segundos · sem cartão</p>
+  </div>
+
+  <section>
+    <h2>O custo de descobrir no edital</h2>
+    <p class="sub">Quem vende para prefeitura conhece os três finais dessa história.</p>
+    <div class="pain">
+      <div class="card">
+        <h3>O escopo já foi escrito</h3>
+        <p>O termo de referência descreve, item por item, o equipamento de quem esteve na secretaria três meses antes. Você responde a um edital desenhado em volta de outro fornecedor.</p>
+      </div>
+      <div class="card">
+        <h3>Sobra disputar preço</h3>
+        <p>Chegando junto com todo mundo na publicação, a única variável que resta é desconto. Margem virou o preço de ter chegado tarde.</p>
+      </div>
+      <div class="card">
+        <h3>Você não sabe onde procurar</h3>
+        <p>São 5.570 municípios. Sem saber em qual deles caiu dinheiro para a sua área, prospecção em prefeitura é sorteio — caro, lento e sem critério.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="amostra">
+    <h2>Amostra real — emendas já pagas, por município e área</h2>
+    <p class="sub">
+      <!-- SLOT_SUB_AMOSTRA -->
+      Extraído das bases federais públicas de execução de emendas parlamentares. Informação 100% pública —
+      confira você mesmo antes de confiar em nós.
+    </p>
+
+    <div class="sample">
+      <div class="sample-head">
+        <span id="sample-source">Emendas parlamentares · valor PAGO</span>
+        <span id="sample-period">período: em fechamento</span>
+      </div>
+
+      <!-- ==== INÍCIO DO SLOT DE AMOSTRA (gerado por data/etl_emendas.py) ==== -->
+      <div id="sample-rows">
+        <div class="empty">
+          A amostra está sendo fechada com os pagamentos mais recentes publicados.
+          <strong>Faça o pré-cadastro abaixo com os seus municípios</strong> e ela chega recortada
+          para onde você vende — não uma lista genérica.
+        </div>
+      </div>
+      <!-- ==== FIM DO SLOT DE AMOSTRA ==== -->
+    </div>
+  </section>
+
+  <section>
+    <h2>Como funciona</h2>
+    <ol class="how">
+      <li>Você informa <b>quais municípios</b> atende (ou o estado inteiro) e <b>em que área vende</b> — saúde, educação, obras.</li>
+      <li>Acompanhamos a <b>execução das emendas parlamentares</b> nas bases públicas federais e detectamos quando um valor é efetivamente <b>pago</b> ao município, na função de governo que corresponde à sua área.</li>
+      <li>Chega um alerta com <b>município, área, valor pago, autor da emenda e data</b> — mais o link da fonte oficial, para você conferir.</li>
+      <li>Você usa a janela: procura a secretaria enquanto a compra está sendo desenhada, não depois de publicada.</li>
+    </ol>
+    <p class="legal" style="margin-top:14px">
+      Trabalhamos exclusivamente com dado orçamentário público publicado pelo próprio Estado. Não vendemos
+      dado pessoal, contato privado, nem intermediamos qualquer relação com agente público.
+    </p>
+  </section>
+
+  <!-- ==== INÍCIO DO SLOT DE DIFERENCIAÇÃO HONESTA (preencher com os fatos verificados em data/CONCORRENCIA.md) ==== -->
+  <section id="honestidade">
+    <h2>O que é público, e o que nós fazemos com isso</h2>
+    <p class="sub">
+      O dado bruto de emendas é aberto — qualquer pessoa pode baixar. O que cobramos não é acesso ao dado.
+    </p>
+    <div class="honest">
+      <div><b>Você não precisa de nós para consultar.</b> As bases federais de execução orçamentária são públicas e gratuitas. Se a sua empresa tem quem baixe, cruze e monitore todo mês, o Radar não te serve — e a gente prefere dizer isso agora.</div>
+      <div><b>O que vendemos é o recorte e o aviso.</b> Filtrar 5.570 municípios pela sua área, detectar o pagamento novo e te empurrar isso sem você abrir nada. Push, não portal com login.</div>
+      <div><b>Preço nesta página.</b> Sem "fale com um consultor", sem fidelidade, mês a mês.</div>
+    </div>
+  </section>
+  <!-- ==== FIM DO SLOT DE DIFERENCIAÇÃO ==== -->
+
+  <section>
+    <h2>Preço</h2>
+    <p class="sub">Um único plano. Se o primeiro alerta não pagar a assinatura, você cancela.</p>
+    <div class="price">
+      <div class="amt">R$249 <span>/ mês</span></div>
+      <ul>
+        <li>Monitoramento dos municípios que você definir</li>
+        <li>Alerta de emenda <strong>paga</strong>, filtrado pela sua área</li>
+        <li>Município, área, valor, autor da emenda, data e link da fonte oficial</li>
+        <li>Histórico de emendas pagas nos seus municípios</li>
+        <li>Sem fidelidade, sem taxa de setup</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="pre-cadastro">
+    <h2>Pré-cadastro</h2>
+    <p class="sub">
+      Estamos abrindo as primeiras vagas por ordem de pré-cadastro. Diga quais municípios você atende —
+      é isso que define se conseguimos te atender já na primeira turma, e é com base nessa lista que
+      montamos a sua amostra.
+    </p>
+
+    <!-- FORM_ENDPOINT: preencher com a URL /formResponse do Google Form (pendência P-020).
+         Enquanto vazio, o formulário fica travado e o aviso aparece — nenhuma intenção é perdida em silêncio. -->
+    <script>window.FORM_ENDPOINT = ""; window.FORM_FIELDS = {
+      nome:"", email:"", empresa:"", areas:"", municipios:"", amostra:"", assinar:""
+    };</script>
+
+    <div id="form-blocked" class="notice">
+      <strong>Pré-cadastro abre em instantes.</strong><br>
+      Estamos finalizando o canal de recebimento para não perder nenhum pedido no caminho.
+      Volte em algumas horas — ou escreva para o contato no rodapé com a lista dos seus municípios
+      que garantimos a sua posição na fila com a data de hoje.
+    </div>
+
+    <form id="form" class="hidden" method="POST" target="hidden-sink">
+      <div>
+        <label for="nome">Nome <span class="req">*</span></label>
+        <input id="nome" name="nome" type="text" required autocomplete="name">
+      </div>
+      <div>
+        <label for="email">E-mail corporativo <span class="req">*</span>
+          <span class="hint">É por aqui que a amostra e os alertas chegam.</span>
+        </label>
+        <input id="email" name="email" type="email" required autocomplete="email">
+      </div>
+      <div>
+        <label for="empresa">Empresa <span class="req">*</span></label>
+        <input id="empresa" name="empresa" type="text" required autocomplete="organization">
+      </div>
+      <div>
+        <label>Em que áreas você vende para prefeituras</label>
+        <div class="areas">
+          <span><input id="a1" name="areas" type="checkbox" value="Saúde"><label for="a1">Saúde</label></span>
+          <span><input id="a2" name="areas" type="checkbox" value="Educação"><label for="a2">Educação</label></span>
+          <span><input id="a3" name="areas" type="checkbox" value="Obras e infraestrutura"><label for="a3">Obras e infraestrutura</label></span>
+          <span><input id="a4" name="areas" type="checkbox" value="Consultoria de captação de recursos"><label for="a4">Consultoria de captação</label></span>
+          <span><input id="a5" name="areas" type="checkbox" value="Outra"><label for="a5">Outra</label></span>
+        </div>
+      </div>
+      <div>
+        <label for="municipios">Quais municípios você atende ou quer atender <span class="req">*</span>
+          <span class="hint">Um por linha. Se atende um estado inteiro, escreva o estado — serve.</span>
+        </label>
+        <textarea id="municipios" name="municipios" required placeholder="Sorocaba/SP&#10;Itu/SP&#10;Piedade/SP&#10;— ou —&#10;todo o interior de SP"></textarea>
+      </div>
+      <div class="check">
+        <input id="amostra" name="amostra" type="checkbox">
+        <label for="amostra">Quero receber a amostra completa das emendas já pagas nesses municípios.</label>
+      </div>
+      <div class="check">
+        <input id="assinar" name="assinar" type="checkbox">
+        <label for="assinar">Quero assinar por R$249/mês — me avise quando a minha vaga abrir.</label>
+      </div>
+      <div>
+        <button class="btn" type="submit">Enviar pré-cadastro</button>
+      </div>
+      <p class="legal">
+        Usamos seus dados apenas para avaliar o encaixe, montar sua amostra e te avisar da abertura.
+        Sem repasse a terceiros, sem cobrança agora. Você pode pedir a exclusão a qualquer momento.
+      </p>
+    </form>
+
+    <div id="thanks" class="thanks hidden">
+      <strong>Pré-cadastro registrado.</strong><br>
+      Vamos levantar as emendas já pagas nos municípios que você listou e responder com a amostra
+      recortada para o seu caso. Se houver pagamento relevante na sua área, você vai saber.
+    </div>
+    <iframe name="hidden-sink" class="hidden" title="sink"></iframe>
+  </section>
+
+</div>
+
+<footer class="wrap">
+  <div>Radar de Emendas — projeto em validação. Dados de execução orçamentária de fontes públicas federais.</div>
+  <div style="margin-top:6px">Contato: <span class="mono" id="contato">(em publicação)</span></div>
+</footer>
+
+<script>
+(function(){
+  var ep = window.FORM_ENDPOINT || "";
+  var form = document.getElementById('form');
+  var blocked = document.getElementById('form-blocked');
+  var thanks = document.getElementById('thanks');
+
+  if (ep) {
+    form.action = ep;
+    blocked.classList.add('hidden');
+    form.classList.remove('hidden');
+    // Mapeia os names locais para os entry.* do Google Form, quando informados.
+    var map = window.FORM_FIELDS || {};
+    Object.keys(map).forEach(function(k){
+      if (!map[k]) return;
+      form.querySelectorAll('[name="'+k+'"]').forEach(function(el){
+        el.setAttribute('name', map[k]);
+      });
+    });
+    form.addEventListener('submit', function(){
+      setTimeout(function(){
+        form.classList.add('hidden');
+        thanks.classList.remove('hidden');
+        thanks.scrollIntoView({block:'center'});
+      }, 400);
+    });
+  }
+})();
+</script>
+</body>
+</html>
