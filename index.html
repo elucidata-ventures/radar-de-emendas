@@ -326,11 +326,67 @@
       nome:"", email:"", empresa:"", areas:"", municipios:"", amostra:"", assinar:""
     };</script>
 
-    <div id="form-blocked" class="notice">
-      <strong>Pré-cadastro abre em instantes.</strong><br>
-      Estamos finalizando o canal de recebimento para não perder nenhum pedido no caminho.
-      Volte em algumas horas — ou escreva para o contato no rodapé com a lista dos seus municípios
-      que garantimos a sua posição na fila com a data de hoje.
+    <!-- ==== PRÉ-CADASTRO ANÔNIMO (funciona hoje; não coleta dado pessoal) ==== -->
+    <div id="anon">
+      <form id="anon-form" onsubmit="return false">
+        <div>
+          <label for="a-mun">Quais municípios você atende ou quer atender <span class="req">*</span>
+            <span class="hint">Um por linha. Se atende um estado inteiro, escreva o estado — serve.</span>
+          </label>
+          <textarea id="a-mun" autocomplete="off" spellcheck="false"
+            placeholder="Sorocaba/SP&#10;Itu/SP&#10;Piedade/SP&#10;— ou —&#10;todo o interior de SP"></textarea>
+          <div class="hint" id="a-live" style="margin-top:6px"></div>
+        </div>
+        <div>
+          <label>Em que áreas você vende para prefeituras</label>
+          <div class="areas">
+            <span><input id="b1" class="a-area" type="checkbox" value="Saúde"><label for="b1">Saúde</label></span>
+            <span><input id="b2" class="a-area" type="checkbox" value="Educação"><label for="b2">Educação</label></span>
+            <span><input id="b3" class="a-area" type="checkbox" value="Obras e infraestrutura"><label for="b3">Obras e infraestrutura</label></span>
+            <span><input id="b4" class="a-area" type="checkbox" value="Consultoria de captação"><label for="b4">Consultoria de captação</label></span>
+            <span><input id="b5" class="a-area" type="checkbox" value="Outra"><label for="b5">Outra</label></span>
+          </div>
+        </div>
+        <div>
+          <label for="a-porte">Quantos municípios sua carteira cobre hoje</label>
+          <select id="a-porte">
+            <option value="">Prefiro não dizer</option>
+            <option value="1-3">1 a 3</option>
+            <option value="4-10">4 a 10</option>
+            <option value="11-30">11 a 30</option>
+            <option value="30+">Mais de 30</option>
+          </select>
+        </div>
+        <div class="check">
+          <input id="a-amostra" type="checkbox">
+          <label for="a-amostra">Quero receber a amostra completa das emendas já pagas nesses municípios.</label>
+        </div>
+        <div class="check">
+          <input id="a-assinar" type="checkbox">
+          <label for="a-assinar">Quero assinar por R$249/mês — me avise quando a minha vaga abrir.</label>
+        </div>
+        <div>
+          <button class="btn" type="button" id="a-btn">Enviar pré-cadastro (anônimo)</button>
+        </div>
+        <p class="legal">
+          <strong>Anônimo, e isso é literal.</strong> Saem daqui exatamente quatro coisas: a sua
+          <strong>lista de municípios</strong>, as <strong>áreas</strong>, o <strong>porte da carteira</strong>
+          e o que você marcou acima. <strong>Nenhum nome, e-mail, telefone ou CNPJ é enviado</strong> — nem
+          como opção, porque este formulário não pergunta. Se por descuido você digitar um e-mail ou
+          telefone no campo de municípios, ele é apagado antes do envio. Estamos medindo demanda, não
+          montando lista de contatos.
+        </p>
+      </form>
+
+      <div id="a-out" aria-live="polite"></div>
+
+      <div class="notice" id="a-nota" style="margin-top:18px">
+        <strong>Por que não pedimos seu e-mail ainda?</strong><br>
+        Porque não temos como responder por e-mail hoje sem improvisar, e preferimos não coletar um
+        endereço que ficaria parado. Se você quer resposta nominal com a amostra dos seus municípios,
+        marque a caixa acima e escreva para o contato no rodapé — sua posição na fila conta a partir
+        da data do envio.
+      </div>
     </div>
 
     <form id="form" class="hidden" method="POST" target="hidden-sink">
@@ -397,16 +453,116 @@
 </footer>
 
 <script>
+/* ===================================================================
+   PRÉ-CADASTRO ANÔNIMO — instrumento de medição do Gate 1.
+   1 mensagem por submissão para um tópico público do ntfy.sh (custo R$0,
+   sem conta, sem aceite de termos), lido por curl no heartbeat headless.
+   Payload: municípios + áreas + porte + as 2 caixas do threshold + origem.
+   NADA MAIS. Não há campo de nome/e-mail/telefone neste bloco, e o texto
+   livre passa por filtro que remove e-mail e telefone antes do envio.
+   Padrão herdado da venture irmã G001-09 (memo 2026-08-06).
+   ATENÇÃO: o ntfy retém mensagem por ~12h — a colheita durável é feita por
+   ops/coletar_intencao.py, que roda em todo heartbeat. Sem ela a evidência
+   do gate evapora entre ciclos.
+=================================================================== */
+(function(){
+  var NTFY = 'https://ntfy.sh/rdm-g00103-emendas-7b2e4d';
+  var box = document.getElementById('a-mun');
+  var btn = document.getElementById('a-btn');
+  var out = document.getElementById('a-out');
+  var live = document.getElementById('a-live');
+  var porte = document.getElementById('a-porte');
+  if (!box || !btn || !out) return;
+
+  var enviado = false, enviando = false;
+
+  function limpaPII(s){
+    return String(s || '')
+      .replace(/[A-Za-z0-9._%+\-]+\s*(?:@|\(at\)|\[at\])\s*[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/gi, ' ')
+      .replace(/[A-Za-z0-9._%+\-]*@[A-Za-z0-9._%+\-]*/g, ' ')
+      .replace(/\+?\d[\d\s().\-]{7,}\d/g, ' ');
+  }
+  function lista(){
+    return limpaPII(box.value)
+      .split(/[\n\r,;\/]+/)
+      .map(function(s){ return s.replace(/\s+/g,' ').trim().slice(0,60); })
+      .filter(function(s){ return s.length > 1; })
+      .slice(0,60);
+  }
+  function atualizaLive(){
+    var n = lista().length;
+    live.textContent = n ? (n + (n === 1 ? ' município na lista' : ' municípios na lista')) : '';
+  }
+  box.addEventListener('input', atualizaLive);
+  atualizaLive();
+
+  function areas(){
+    return Array.prototype.slice.call(document.querySelectorAll('.a-area'))
+      .filter(function(el){ return el.checked; })
+      .map(function(el){ return el.value; });
+  }
+  function origem(){
+    try {
+      var o = new URLSearchParams(location.search).get('o') || 'direto';
+      return String(o).replace(/[^\w\s.\-]/g,'').trim().slice(0,60) || 'direto';
+    } catch(e){ return 'direto'; }
+  }
+  function aviso(titulo, texto){
+    out.innerHTML = '<div class="notice" style="margin-top:14px"><strong></strong><br><span></span></div>';
+    out.querySelector('strong').textContent = titulo;
+    out.querySelector('span').textContent = texto;
+  }
+
+  btn.addEventListener('click', function(){
+    if (enviado || enviando) return;
+    var municipios = lista();
+    if (!municipios.length) {
+      aviso('Faltou a lista de municípios',
+        'Escreva pelo menos um município (ou o estado) no campo acima — é o único dado obrigatório, e é o que define a sua amostra.');
+      return;
+    }
+    enviando = true; btn.disabled = true; btn.textContent = 'Enviando...';
+    var payload = {
+      municipios: municipios,
+      areas: areas(),
+      porte: (porte && porte.value) ? porte.value : 'nao informado',
+      quer_amostra: !!document.getElementById('a-amostra').checked,
+      quer_assinar: !!document.getElementById('a-assinar').checked,
+      origem: origem(),
+      ts: new Date().toISOString()
+    };
+    fetch(NTFY, { method:'POST', body: JSON.stringify(payload) })
+      .then(function(r){
+        if (!r.ok) throw new Error('http ' + r.status);
+        enviado = true; btn.textContent = 'Enviado';
+        document.getElementById('anon-form').classList.add('hidden');
+        out.innerHTML = '<div class="thanks"><strong>Pré-cadastro registrado.</strong><br><span></span></div>';
+        out.querySelector('span').textContent =
+          municipios.length + (municipios.length === 1 ? ' município entrou' : ' municípios entraram')
+          + ' na fila. Vamos levantar as emendas já pagas neles e recortar a amostra para a sua área.'
+          + ' Não veio nome nem e-mail junto, como prometido.';
+      })
+      .catch(function(){
+        enviando = false; btn.disabled = false; btn.textContent = 'Tentar de novo';
+        aviso('Não consegui enviar agora',
+          'A mensagem não saiu — pode ser a sua rede, um bloqueador ou o serviço fora do ar. Nada foi salvo e nada ficou pela metade. Tente de novo, ou escreva para o contato no rodapé com a mesma lista.');
+      });
+  });
+})();
+
 (function(){
   var ep = window.FORM_ENDPOINT || "";
   var form = document.getElementById('form');
-  var blocked = document.getElementById('form-blocked');
+  var anon = document.getElementById('anon');
   var thanks = document.getElementById('thanks');
 
   if (ep) {
+    // Se a P-020 (Google Form) chegar, o caminho IDENTIFICADO aparece como opção
+    // ADICIONAL — o anônimo continua no ar, porque ele é quem mede o gate.
     form.action = ep;
-    blocked.classList.add('hidden');
     form.classList.remove('hidden');
+    if (anon) anon.insertAdjacentHTML('afterend',
+      '<p class="sub" style="margin-top:22px">Prefere receber a amostra nominalmente, por e-mail? Use o formulário abaixo.</p>');
     // Mapeia os names locais para os entry.* do Google Form, quando informados.
     var map = window.FORM_FIELDS || {};
     Object.keys(map).forEach(function(k){
