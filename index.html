@@ -311,15 +311,58 @@
 
   <!-- ==== INÍCIO DO SLOT DE DIFERENCIAÇÃO HONESTA (preencher com os fatos verificados em data/CONCORRENCIA.md) ==== -->
   <section id="honestidade">
-    <h2>O que é público, e o que nós fazemos com isso</h2>
+    <h2>O que já existe de graça — e o vão exato onde nós entramos</h2>
     <p class="sub">
-      O dado bruto de emendas é aberto — qualquer pessoa pode baixar. O que cobramos não é acesso ao dado.
+      O dado de emendas é público, gratuito e de boa qualidade, e existe até alerta oficial sem custo.
+      Se o que está escrito abaixo te convencer de que você não precisa pagar, ótimo — preferimos isso
+      a você descobrir depois da primeira fatura. O que cobramos não é acesso ao dado.
     </p>
     <div class="honest">
-      <div><b>Você não precisa de nós para consultar.</b> As bases federais de execução orçamentária são públicas e gratuitas. Se a sua empresa tem quem baixe, cruze e monitore todo mês, o Radar não te serve — e a gente prefere dizer isso agora.</div>
-      <div><b>O que vendemos é o recorte e o aviso.</b> Filtrar 5.570 municípios pela sua área, detectar o pagamento novo e te empurrar isso sem você abrir nada. Push, não portal com login.</div>
-      <div><b>Preço nesta página.</b> Sem "fale com um consultor", sem fidelidade, mês a mês.</div>
+      <div><b>O Portal da Transparência manda alerta por e-mail, de graça — e este é o substituto mais forte
+        que você tem.</b> Vale abrir e ver quais assinaturas existem: em <i>Despesas realizadas em políticas
+        públicas</i> dá para escolher entre <b>Empenhos e Pagamentos</b> e filtrar por <b>Função/Subfunção</b> —
+        ou seja, pela sua área — mas <b>não há filtro de município</b>: chega o país inteiro. Em <i>Convênios</i>
+        dá para escolher <b>UF e município</b> e ser avisado <i>por liberação de recursos</i> — só que é
+        convênio, e convênio não alcança a transferência especial, a chamada emenda Pix. <b>Área sem município,
+        ou município sem área.</b> E em nenhuma das duas telas o eixo é a emenda: a lista de categorias de
+        notificação é Convênios, Despesas, Contratos, Atualização das bases e Pessoa Jurídica — não há
+        assinatura de "Emendas Parlamentares".</div>
+
+      <div><b>É nesse vão que o Radar vive, e o vão é estreito — não é um oceano.</b> Nossa única tarefa é
+        entregar num aviso só o cruzamento que nenhuma daquelas telas faz sozinha: <b>emenda paga + município
+        da sua carteira + a sua área</b>, com valor, autor e data. Não é dado melhor, não é dado que você não
+        possa buscar. É o cruzamento e a entrega.</div>
+
+      <div><b>As ferramentas gratuitas, pelo nome — porque você merece conhecê-las.</b> A <b>consulta de
+        emendas do Portal da Transparência</b> permite busca por parlamentar e localidade. O
+        <b>Transferegov</b> lista as transferências especiais publicamente e sem login, com plano de ação,
+        beneficiário, UF, emenda e valor, e exporta CSV — mas é consulta manual, não avisa ninguém. O
+        <b>Siga Brasil</b>, do Senado, e o <b>painel de emendas do Tesouro Transparente</b> abrem a execução
+        orçamentária federal em detalhe. A <b>Central das Emendas</b>, iniciativa civil gratuita, filtra por
+        autor, tipo, partido, estado, beneficiário, temática e período desde 2015 e mantém a newsletter
+        "Radar da Central". Em Minas, o <b>Fiscaliza Minas</b> mostra por município, sem cadastro e sem custo —
+        só que cobre apenas Minas Gerais. Até onde conseguimos verificar, nenhuma delas dispara aviso
+        automático filtrado pela sua carteira de municípios, e nenhuma foi desenhada para quem <i>vende</i>
+        para prefeitura: são ferramentas de transparência e controle social. A tradução para oportunidade
+        comercial fica com você — ou com a gente.</div>
+
+      <div><b>E os alertas de licitação? Funcionam bem — só disparam depois.</b> O <b>Alerta Licitação</b>
+        publica o preço na página (R$44,90/mês no plano Individual, R$54,90/mês no Corporativo) e envia dois
+        e-mails por dia varrendo 6.441 portais e fontes oficiais; <b>Effecti</b> e <b>ConLicitação</b> também
+        avisam de editais. A diferença nunca foi "eles não avisam" — eles avisam. A diferença é <b>o momento</b>:
+        eles disparam quando o edital é publicado; nós disparamos quando o dinheiro entrou no município, antes.
+        Se você já assina um deles, o Radar não substitui — chega antes.</div>
+
+      <div><b>Você não precisa de nós para consultar, e não temos fosso.</b> Se a sua empresa tem quem baixe as
+        bases, cruze e monitore todo mês, o Radar não te serve. E qualquer plataforma de licitação pode plugar
+        um ETL de emendas e fazer o mesmo — não guardamos segredo nenhum. O que temos é o recorte pronto e o
+        aviso chegando sem você abrir nada, por <b>R$249/mês, com o preço nesta página</b>: sem "fale com um
+        consultor", sem fidelidade, mês a mês.</div>
     </div>
+    <p class="legal" style="margin-top:14px">
+      Levantamento nosso de 06/08/2026, feito abrindo as páginas citadas. Todas as fontes acima são públicas —
+      recomendamos que você confira.
+    </p>
   </section>
   <!-- ==== FIM DO SLOT DE DIFERENCIAÇÃO ==== -->
 
@@ -413,6 +456,21 @@
         marque a caixa acima e escreva para o contato no rodapé — sua posição na fila conta a partir
         da data do envio.
       </div>
+    </div>
+
+    <!-- ==== CAMINHO IDENTIFICADO (endpoint próprio do fundo, captura.elucidata.vc).
+         Braço medido SEPARADAMENTE do anônimo acima — decisão do MP em
+         inbox/2026-08-06__G001-09__ntfy-destrava-8-ventures.md (decisão C).
+         O widget anônimo continua sendo a medição do braço anônimo: não mexer. ==== -->
+    <div class="card" id="identificado" style="margin-top:22px">
+      <h3>Quer a amostra real dos seus municípios?</h3>
+      <p style="margin:0 0 16px">
+        Quem deixa o e-mail recebe a amostra das emendas já pagas nos municípios que atende, recortada
+        pela sua área. Quem não quiser se identificar continua podendo usar o bloco anônimo acima — ele
+        vale do mesmo jeito, só não tem como receber a amostra de volta.
+      </p>
+      <a class="btn" href="https://captura.elucidata.vc/f/g001-03" target="_blank" rel="noopener">Receber a amostra por e-mail</a>
+      <p class="cta-note" style="margin:12px 0 0">Abre em nova aba · leva 1 minuto · sem cartão</p>
     </div>
 
     <form id="form" class="hidden" method="POST" target="hidden-sink">
